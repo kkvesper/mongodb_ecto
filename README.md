@@ -1,18 +1,22 @@
 # Mongo.Ecto
 
-[![Travis Build Status](https://img.shields.io/travis/michalmuskala/mongodb_ecto.svg)](https://travis-ci.org/michalmuskala/mongodb_ecto)
-[![Coveralls Coverage](https://img.shields.io/coveralls/michalmuskala/mongodb_ecto.svg)](https://coveralls.io/github/michalmuskala/mongodb_ecto)
-[![Inline docs](http://inch-ci.org/github/michalmuskala/mongodb_ecto.svg?branch=master)](http://inch-ci.org/github/michalmuskala/mongodb_ecto)
+[![Travis Build Status](https://img.shields.io/travis/ankhers/mongodb_ecto.svg)](https://travis-ci.org/ankhers/mongodb_ecto)
+[![Coveralls Coverage](https://img.shields.io/coveralls/ankhers/mongodb_ecto.svg)](https://coveralls.io/github/ankhers/mongodb_ecto)
+[![Inline docs](http://inch-ci.org/github/ankhers/mongodb_ecto.svg?branch=master)](http://inch-ci.org/github/ankhers/mongodb_ecto)
 
 `Mongo.Ecto` is a MongoDB adapter for Ecto.
 
 For detailed information read the documentation for the `Mongo.Ecto` module,
 or check out examples below.
 
+## Features still missing to be Ecto 2.1 compliant
+* on_conflict
+
 ## Example
 ```elixir
 # In your config/config.exs file
 config :my_app, Repo,
+  adapter: Mongo.Ecto,
   database: "ecto_simple",
   username: "mongodb",
   password: "mongosb",
@@ -20,9 +24,7 @@ config :my_app, Repo,
 
 # In your application code
 defmodule Repo do
-  use Ecto.Repo,
-    otp_app: :my_app,
-    adapter: Mongo.Ecto
+  use Ecto.Repo, otp_app: :my_app
 end
 
 defmodule Weather do
@@ -103,8 +105,8 @@ the database.
 
 Additionally special values are translated as follows:
 
-|	BSON        |     	Ecto|
-|	----------  |      	------|
+|	BSON        |       Ecto|
+|	----------  |       ------|
 |    null     |           `nil`|
 |    min key  |           `:BSON_min`|
 |    max key  |           `:BSON_max`|
@@ -122,7 +124,7 @@ branches: 2.4.x, 2.6.x, 3.0.x
 To contribute you need to compile `Mongo.Ecto` from source and test it:
 
 ```
-$ git clone https://github.com/michalmuskala/mongodb_ecto.git
+$ git clone https://github.com/ankhers/mongodb_ecto.git
 $ cd mongodb_ecto
 $ mix test
 ```

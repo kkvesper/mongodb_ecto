@@ -333,86 +333,29 @@ defmodule Mongo.Ecto.NormalizedQueryTest do
                  %{"$and": [["$not": [x: ["$gt": 0]]], ["$not": [x: ["$lt": 5]]]]})
   end
 
-  test "in expression" do
-    query = Model |> where([e], e.x in []) |> normalize
-    assert_query(query, query: %{x: ["$in": []]})
+#   test "fragments in select" do
+#     query = Schema |> select([], fragment("z.$": 1)) |> normalize
+#     assert_query(query, projection: %{"z.$": 1})
+#     assert [{:fragment, _, _}] = query.fields
 
-    query = Model |> where([e], e.x in ^[1, 2, 3]) |> normalize
-    assert_query(query, query: %{x: ["$in": [1, 2, 3]]})
+#     query = Schema |> select([r], {r.x, fragment("z.$": 1)}) |> normalize
+#     assert_query(query, projection: %{"z.$": 1, x: true})
+#     assert [{:field, :x, _}, {:fragment, _, _}] = query.fields
+#   end
 
-    query = Model |> where([e], e.x in [1, ^2, 3]) |> normalize
-    assert_query(query, query: %{x: ["$in": [1, 2, 3]]})
-
-    query = Model |> where([e], 1 in e.z) |> normalize
-    assert_query(query, query: %{z: 1})
-
-    assert_raise Ecto.QueryError, fn ->
-      Model |> where([e], 1 in ^[]) |> normalize
-    end
-
-    assert_raise Ecto.QueryError, fn ->
-      Model |> where([e], e.x in [1, e.x, 3]) |> normalize
-    end
-  end
-
-  test "having" do
-    assert_raise Ecto.QueryError, fn ->
-      Model |> having([p], p.x == p.x) |> normalize
-    end
-  end
-
-  test "group by" do
-    assert_raise Ecto.QueryError, fn ->
-      Model |> group_by([r], r.x) |> select([r], r.x) |> normalize
-    end
-  end
-
-  test "interpolated values" do
-    query = Model
-            |> where([], ^true)
-            |> where([], ^false)
-            |> order_by([], ^:x)
-            |> limit([], ^4)
-            |> offset([], ^5)
-            |> normalize
-
-    assert_query(query,
-                 opts: [limit: 4, skip: 5],
-                 order: [x: 1],
-                 query: %{_id: ["$exists": true, "$exists": false]})
-  end
-
-  # *_all
-
-  test "update all" do
-    query = from(m in Model, update: [set: [x: 0]]) |> normalize(:update_all)
-    assert_query(query, command: %{"$set": [x: 0]},
-                        query: %{})
-
-    query = from(m in Model, update: [set: [x: 0], inc: [y: 1, z: [-3]]]) |> normalize(:update_all)
-    assert_query(query, command: %{"$set": [x: 0], "$inc": [y: 1, z: [-3]]})
-
-    query = from(e in Model, where: e.x == 123, update: [set: [x: 0]]) |> normalize(:update_all)
-    assert_query(query, command: %{"$set": [x: 0]},
-                        query: %{x: 123})
-
-    query = from(m in Model, update: [set: [x: 0, y: "123"]]) |> normalize(:update_all)
-    assert_query(query, command: %{"$set": [x: 0, y: 123]})
-
-    query = from(m in Model, update: [set: [x: ^0]]) |> normalize(:update_all)
-    assert_query(query, command: %{"$set": [x: 0]})
-
-    query = from(m in Model, update: [set: [x: 0]], update: [set: [y: 123]]) |> normalize(:update_all)
-    assert_query(query, command: %{"$set": [x: 0, y: 123]})
-
-    assert_raise Ecto.QueryError, fn ->
-      from(m in Model, limit: 5, update: [set: [x: 0]]) |> normalize(:update_all)
-    end
-
-    assert_raise Ecto.QueryError, fn ->
-      from(m in Model, offset: 5, update: [set: [x: 0]]) |> normalize(:update_all)
-    end
-  end
+#   test "distinct" do
+#     assert_raise Ecto.QueryError, fn ->
+#       Schema |> distinct([r], r.x) |> select([r], {r.x, r.y}) |> normalize
+#     end
+#
+#    assert_raise Ecto.QueryError, fn ->
+#      from(m in Model, limit: 5, update: [set: [x: 0]]) |> normalize(:update_all)
+#    end
+#
+#    assert_raise Ecto.QueryError, fn ->
+#      from(m in Model, offset: 5, update: [set: [x: 0]]) |> normalize(:update_all)
+#    end
+#  end
 
   test "update all with array ops" do
     query = from(m in Model, update: [push: [z: 0]]) |> normalize(:update_all)
