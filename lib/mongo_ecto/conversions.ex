@@ -37,7 +37,6 @@ defmodule Mongo.Ecto.Conversions do
   def inject_params(value, _params, pk),
     do: from_ecto_pk(value, pk)
 
-
   def from_ecto_pk(%{__struct__: change, field: field, value: value}, pk)
       when change in [Mongo.Ecto.ChangeMap, Mongo.Ecto.ChangeArray] do
     case from_ecto_pk(value, pk) do
