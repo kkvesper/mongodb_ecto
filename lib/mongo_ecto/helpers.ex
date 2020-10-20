@@ -5,25 +5,6 @@ defmodule Mongo.Ecto.Helpers do
   """
 
   @doc """
-  Allows using inline JavaScript in queries in where clauses and inserting it
-  as a value to the database.
-
-  The second argument acts as a context for the function. All values will be
-  converted to valid BSON types.
-
-  Raises ArgumentError if any of the values cannot be converted.
-
-  ## Usage in queries
-
-      from p in Post,
-        where: ^javascript("this.value === value", value: 1)
-  """
-  @spec javascript(String.t, Keyword.t) :: Mongo.Ecto.JavaScript.t
-  def javascript(code, scope \\ []) do
-    %Mongo.Ecto.JavaScript{code: code, scope: scope}
-  end
-
-  @doc """
   Creates proper regex object that can be passed to the database.
 
   ## Usage in queries
@@ -33,7 +14,7 @@ defmodule Mongo.Ecto.Helpers do
 
   For supported options please see `Mongo.Ecto.Regex` module documentation.
   """
-  @spec regex(String.t, String.t) :: Mongo.Ecto.Regex.t
+  @spec regex(String.t(), String.t()) :: Mongo.Ecto.Regex.t()
   def regex(pattern, options \\ "") do
     %Mongo.Ecto.Regex{pattern: pattern, options: options}
   end
@@ -46,7 +27,7 @@ defmodule Mongo.Ecto.Helpers do
       MyRepo.update_all(Post,
         set: [meta: change_map("author.name", "NewName")])
   """
-  @spec change_map(String.t, term) :: Mongo.Ecto.ChangeMap.t
+  @spec change_map(String.t(), term) :: Mongo.Ecto.ChangeMap.t()
   def change_map(field, value) do
     %Mongo.Ecto.ChangeMap{field: field, value: value}
   end
@@ -59,7 +40,7 @@ defmodule Mongo.Ecto.Helpers do
       MyRepo.update_all(Post,
         set: [comments: change_array(0, "author", "NewName")])
   """
-  @spec change_array(pos_integer, String.t, term) :: Mongo.Ecto.ChangeArray.t
+  @spec change_array(pos_integer, String.t(), term) :: Mongo.Ecto.ChangeArray.t()
   def change_array(idx, field \\ "", value) when is_integer(idx) do
     %Mongo.Ecto.ChangeArray{field: "#{idx}.#{field}", value: value}
   end
